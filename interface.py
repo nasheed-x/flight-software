@@ -11,7 +11,12 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "-m", "--monitor", nargs="?", type=int, const=115200, help="Serial monitor"
+    "-m",
+    "--monitor",
+    nargs="?",
+    type=int,
+    const=115200,
+    help="Serial monitor with a default baud rate of 115200",
 )
 
 parser.add_argument(
