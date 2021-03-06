@@ -11,8 +11,12 @@
 #endif
 
 #if defined (STM32F4)  // Defined in Arduino framework
-  #define RFM69_INT     PB3  // 
-  #define RFM69_CS      PB5  //
-  #define RFM69_RST     PA10  // "A"
-  #define LED           PA5
+  // #define RFM69_INT     PB3  // 
+  // #define RFM69_CS      PB5  //
+  // #define RFM69_RST     PA10  // "A"
+  // #define LED           PA5
+  #define RFM69_INT     PC6  // 
+  #define RFM69_CS      PB9  //
+  #define RFM69_RST     PB8  // "A"
+  #define LED           PC1
 #endif
