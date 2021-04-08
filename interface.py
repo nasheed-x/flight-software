@@ -73,6 +73,9 @@ elif args.upload_nucleo:
     print("Building and uploading to Nucleo-F411RE...")
     os.system("pio run -e nucleo -t upload")
 
+elif args.upload_feather:
+    print("Building and uploading to Feather F405...")
+    os.system("pio run -e feather -t upload")
 
 elif args.upload_feather:
     print("Building and uploading to Nucleo-F411RE...")
