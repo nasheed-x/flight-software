@@ -52,6 +52,20 @@ parser.add_argument(
     help="Build and upload firmware to Feather F405",
 )
 
+parser.add_argument(
+    "-bh",
+    "--build_haloship",
+    action="store_true",
+    help="Build firmware for Haloship F405",
+)
+parser.add_argument(
+    "-uh",
+    "--upload_haloship",
+    action="store_true",
+    help="Build and upload firmware to Haloship F405",
+)
+
+
 args = parser.parse_args()
 if args.monitor:
     print("Starting serial monitor at {baud}...".format(baud=args.monitor))
@@ -69,10 +83,19 @@ elif args.build_feather:
     print("Building for Feather F405...")
     os.system("pio run -e feather")
 
+elif args.build_haloship:
+    print("Building for Haloship F405...")
+    os.system("pio run -e haloship")
+
 elif args.upload_nucleo:
     print("Building and uploading to Nucleo-F411RE...")
     os.system("pio run -e nucleo -t upload")
 
-
 elif args.upload_feather:
-    print("Building and uploading to Nucleo-F411RE...")
+    print("Building and uploading to Feather F405...")
+    os.system("pio run -e feather -t upload")
+
+
+elif args.upload_haloship:
+    print("Building and uploading to Haloship F405...")
+    os.system("pio run -e haloship -t upload")
