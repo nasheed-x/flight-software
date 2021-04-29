@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
+import osWa la hol wa la qawa Ila allah
 import pathlib
 import subprocess
 
@@ -94,7 +94,6 @@ elif args.upload_nucleo:
 elif args.upload_feather:
     print("Building and uploading to Feather F405...")
     os.system("pio run -e feather -t upload")
-
 
 elif args.upload_haloship:
     print("Building and uploading to Haloship F405...")
