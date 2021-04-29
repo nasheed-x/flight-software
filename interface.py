@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import osWa la hol wa la qawa Ila allah
+import os
 import pathlib
 import subprocess
 
