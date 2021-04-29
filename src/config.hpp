@@ -2,6 +2,17 @@
 
 // If needed change to 434.0 or other frequency, must match RX's freq!
 #define RF69_FREQ 915.0
+#define PWM_DRIVER_ADDRESS 0x70
+
+#define LPS_CS        PC6
+#define LPS_SCK       PA5
+#define LPS_MISO      PA6
+#define LPS_MOSI      PA7
+
+#define RFM69_INT     PB4  // 
+#define RFM69_CS      PC13  //
+#define RFM69_RST     PC1  // "A"
+#define LED           PA4
 
 #if defined (__AVR_ATmega328P__)  // Feather 328P w/wing
   #define RFM69_INT     3  // 
@@ -23,7 +34,7 @@
 #endif
 
 // LPS25 pin definition
-#define LPS_CS PC7
+// #define LPS_CS PC7
 
 //BMX055 I2C address (JP1,JP2,JP3 = Open)
 // BMX055　I2C address of acceleration sensor 
