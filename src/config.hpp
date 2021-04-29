@@ -5,12 +5,16 @@
 #define PWM_DRIVER_ADDRESS 0x70
 
 // For SPI mode, we need a CS pin
-#define LPS_CS PC6
+#define LPS_CS        PC6
 // For software-SPI mode we need SCK/MOSI/MISO pins
-#define LPS_SCK PA5
-#define LPS_MISO PA6
-#define LPS_MOSI PA7
+#define LPS_SCK       PA5
+#define LPS_MISO      PA6
+#define LPS_MOSI      PA7
 
+#define RFM69_INT     PB4  // 
+#define RFM69_CS      PC13  //
+#define RFM69_RST     PC1  // "A"
+#define LED           PA4
 
 #if defined (__AVR_ATmega328P__)  // Feather 328P w/wing
   #define RFM69_INT     3  // 
@@ -20,10 +24,10 @@
 #endif
 
 #if defined (STM32F4)  // Defined in Arduino framework
-  #define RFM69_INT     PB3  // 
-  #define RFM69_CS      PB5  //
-  #define RFM69_RST     PA10  // "A"
-  #define LED           PA5
+  #define RFM69_INT     PB4  // 
+  #define RFM69_CS      PC13  //
+  #define RFM69_RST     PC1  // "A"
+  #define LED           PA4
 #endif
 
 
