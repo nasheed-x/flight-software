@@ -25,4 +25,5 @@ bool Buzzer::OnEnable()
 void Buzzer::OnDisable()
 {
     noTone(this->pin);
+    return;
 }
