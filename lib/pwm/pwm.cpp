@@ -45,3 +45,8 @@ void PWMControl::OnDisable()
     this->driver->setLedDriverMode(channel, PCA9635_LEDOFF);
     return;
 }
+
+bool PWMControl::checkStatus()
+{
+    return this->driver->isConnected();
+}

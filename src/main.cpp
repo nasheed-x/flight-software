@@ -1,15 +1,26 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <config.h>
 #include <buzzer.h>
 #include <pwm.h>
 #include <blink.h>
 #include <TaskScheduler.h>
 
+#include <config.h>
+
 // Instantiate objects
 Buzzer *buzzer;
 PWMControl *pwm;
 Blink *blinker;
+
+void check_sensors(PWMControl *pwm)
+{
+    Serial.println("Conducting status check on all ICs...");
+
+    // Check status of PWM driver
+    pwm->checkStatus() ? Serial.println("PWM connection success!") : Serial.println("PWM connection failed");
+
+    // Check status of pCA
+}
 
 void setup()
 {
@@ -28,9 +39,7 @@ void setup()
     pwm = new PWMControl();
     blinker = new Blink(pwm);
 
-    // Program start buzzer
-    buzzer->signal(1000, 1000);
-    blinker->blink(0, 2000, 2);
+    check_sensors(pwm);
 }
 
 void loop()
