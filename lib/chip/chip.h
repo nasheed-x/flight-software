@@ -3,7 +3,6 @@
 
 class Chip
 {
-
 public:
     virtual bool checkStatus() = 0;
 };
