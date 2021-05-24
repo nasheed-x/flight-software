@@ -13,7 +13,7 @@ PWMControl *pwm;
 Barometer *barometer;
 Blink *blinker;
 
-SPIClass lps_spi(LPS_MOSI, LPS_MISO, LPS_SCK);
+SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
 
 void check_sensors(PWMControl *pwm, Barometer *barometer)
 {
@@ -33,7 +33,7 @@ void setup()
     // Initialize communication
     Wire.begin();
     Serial.begin(115200);
-    lps_spi.begin();
+    LPS_SPI.begin();
 
     // Wait until serial console is open, remove if not tethered to computer
     while (!Serial)
@@ -44,10 +44,14 @@ void setup()
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
+    barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
     blinker = new Blink(pwm);
-    barometer = new Barometer(&lps_spi, LPS_CS);
 
+    // Run sensor check
     check_sensors(pwm, barometer);
+
+    // Enable barometer
+    barometer->enable();
 }
 
 void loop()

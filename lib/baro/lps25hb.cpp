@@ -1,28 +1,66 @@
 #include "lps25hb.h"
 
-Barometer::Barometer(SPIClass *lps_spi, int LPS_CS)
+Barometer::Barometer(int LPS_CS, SPIClass *LPS_SPI, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
+                                                                              measurement_delay(measurement_delay),
+                                                                              previous_time(0),
+                                                                              pressure(-1),
+                                                                              temperature(-1)
 {
-    this->driver = new LPS25HBSensor(lps_spi, LPS_CS);
-    this->driver->Enable();
+    this->spi_dev = LPS_SPI;
+    this->LPS_CS = LPS_CS;
+    this->lps_driver = new Adafruit_LPS25();
 }
 
 Barometer::~Barometer() {}
 
+float Barometer::getTemperature()
+{
+    return this->temperature;
+}
+
+float Barometer::getPressure()
+{
+    return this->pressure;
+}
+
+bool Barometer::measurementReady()
+{
+    long current_time = millis();
+    if (current_time - this->previous_time >= this->measurement_delay)
+    {
+        this->previous_time = current_time;
+        return true;
+    }
+    return false;
+}
+
 bool Barometer::Callback()
 {
+    if (measurementReady())
+    {
+        sensors_event_t pressure;
+        sensors_event_t temp;
+        temp_driver->getEvent(&temp);
+        pressure_driver->getEvent(&pressure);
+        this->temperature = temp.temperature;
+        this->pressure = pressure.pressure;
+        return true;
+    }
+    return false;
+}
+
+bool Barometer::OnEnable()
+{
+    this->temp_driver = this->lps_driver->getTemperatureSensor();
+    this->pressure_driver = this->lps_driver->getPressureSensor();
     return true;
+}
+
+void Barometer::OnDisable()
+{
 }
 
 bool Barometer::checkStatus()
 {
-    uint8_t lps_id;
-    lps_id = 69;
-    this->driver->begin();
-    LPS25HBStatusTypeDef return_status = this->driver->ReadReg(0x0F, &lps_id);
-    this->driver->end();
-    if ((lps_id == 189) && (return_status == 0))
-    {
-        return true;
-    }
-    return false;
+    return this->lps_driver->begin_SPI(this->LPS_CS, this->spi_dev);
 }
