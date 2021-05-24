@@ -129,5 +129,30 @@
         "platformio",
         "NOLINTNEXTLINE",
         "println",
-    ]
+    ],
+    "fileHeaderComment.parameter": {
+        "*": {
+            "commentbegin": "/*",
+            "commentprefix": " *",
+            "commentend": " */",
+            "name": "Nishant Aswani",
+            "company": "HALOSHIP"
+        }
+    },
+    "fileHeaderComment.template": {
+        "*": [
+            "${commentbegin}",
+            "${commentprefix} ${filename}",
+            "${commentprefix}",
+            "${commentprefix} Copyright (C) ${year}, ${company}",
+            "${commentprefix}",
+            "${commentprefix} This software is developed under the Haloship project",
+            "${commentprefix} at the Engineering Design Studio (https://nyuad.io).",
+            "${commentprefix}",
+            "${commentprefix} This software is released under the MIT License.",
+            "${commentprefix}",
+            "${commentprefix} This software was developed with StreetCat and <3",
+            "${commentend}"
+        ]
+    }
 }
