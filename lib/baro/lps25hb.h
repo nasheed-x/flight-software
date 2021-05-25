@@ -4,7 +4,6 @@
 #include <scheduler.h>
 #include <Adafruit_LPS2X.h>
 #include <Adafruit_Sensor.h>
-#include <SPI.h>
 #include <Arduino.h>
 #include "chip.h"
 
