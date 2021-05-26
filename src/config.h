@@ -1,4 +1,3 @@
-
 #if defined(HALOSHIP)
 
 /*** LPS25HB Barometer ***/
@@ -10,8 +9,6 @@
 /*** RFM69HW Transceiver ***/
 #define RFM69_INT PB4
 #define RFM69_CS PC13
-#define RFM69_RST PC1
-#define RF69_FREQ 915.0
 
 /*** Exposed Digital Pin ***/
 #define USER_PIN_1 PA4

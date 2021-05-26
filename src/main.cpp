@@ -17,20 +17,61 @@ Transceiver *transceiver;
 
 SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
 
-void check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiver)
+enum state
+{
+    PRELAUNCH,
+    LAUNCH_READY,
+    MOTOR_BURN,
+    BURNOUT,
+    APOGEE,
+    POST_DROGUE,
+    POST_MAIN,
+    END
+};
+
+bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiver)
 {
     Serial.println("************************************");
     Serial.println("Conducting status check on all ICs...");
     Serial.println("************************************");
 
+    bool error = true;
+
     // Check status of PCA9635 PWM driver
-    pwm->checkStatus() ? Serial.println("PWM connection success! \xE2\x9C\x93") : Serial.println("PWM connection failed \xE2\x9C\x97");
+    if (pwm->checkStatus())
+    {
+        Serial.println("PWM connection success! \xE2\x9C\x93");
+    }
+
+    else
+    {
+        Serial.println("PWM connection failed \xE2\x9C\x97");
+        error = false;
+    }
 
     // Check status of LPS25HB Barometer
-    barometer->checkStatus() ? Serial.println("Barometer connection success! \xE2\x9C\x93") : Serial.println("Barometer connection failed \xE2\x9C\x97");
+    if (barometer->checkStatus())
+    {
+        Serial.println("Barometer connection success! \xE2\x9C\x93");
+    }
+    else
+    {
+        Serial.println("Barometer connection failed \xE2\x9C\x97");
+        error = false;
+    }
 
     // Check status of RFM69HW Transceiver
-    transceiver->checkStatus() ? Serial.println("Transceiver connection success! \xE2\x9C\x93") : Serial.println("Transceiver connection failed \xE2\x9C\x97");
+    if (transceiver->checkStatus())
+    {
+        Serial.println("Transceiver connection success! \xE2\x9C\x93");
+    }
+    else
+    {
+        Serial.println("Transceiver connection failed \xE2\x9C\x97");
+        error = false;
+    }
+
+    return error;
 }
 
 void setup()
@@ -49,15 +90,16 @@ void setup()
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
-    barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
     blinker = new Blink(pwm);
-    transceiver = new Transceiver;
+    barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT);
 
     // Run sensor check
-    check_sensors(pwm, barometer, transceiver);
+    check_sensors(pwm, barometer, transceiver) ? buzzer->signalMario() : buzzer->signalTakeOnMe();
 
-    // Enable barometer
+    // Enable chips
     barometer->enable();
+    transceiver->enable();
 }
 
 void loop()
