@@ -4,6 +4,7 @@
 #include <lps25hb.h>
 #include <rfm69.h>
 #include <blink.h>
+#include <imu.h>
 #include <TaskScheduler.h>
 
 #include <config.h>
@@ -14,6 +15,7 @@ PWMControl *pwm;
 Barometer *barometer;
 Blink *blinker;
 Transceiver *transceiver;
+IMU *imu;
 
 SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
 
@@ -29,7 +31,7 @@ enum state
     END
 };
 
-bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiver)
+bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiver, IMU *imu)
 {
     Serial.println("************************************");
     Serial.println("Conducting status check on all ICs...");
@@ -71,6 +73,17 @@ bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiv
         error = false;
     }
 
+    // Check status of BMX055 IMU
+    if (imu->checkStatus())
+    {
+        Serial.println("IMU connection success! \xE2\x9C\x93");
+    }
+    else
+    {
+        Serial.println("IMU connection failed \xE2\x9C\x97");
+        error = false;
+    }
+
     return error;
 }
 
@@ -93,13 +106,14 @@ void setup()
     blinker = new Blink(pwm);
     barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
     transceiver = new Transceiver(RFM69_CS, RFM69_INT);
+    imu = new IMU();
 
     // Run sensor check
-    check_sensors(pwm, barometer, transceiver) ? buzzer->signalMario() : buzzer->signalTakeOnMe();
+    check_sensors(pwm, barometer, transceiver, imu) ? buzzer->signalSuccess() : buzzer->signalFail();
 
-    // Enable chips
-    barometer->enable();
-    transceiver->enable();
+    // // Enable chips
+    // barometer->enable();
+    // transceiver->enable();
 }
 
 void loop()
