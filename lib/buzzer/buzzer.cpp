@@ -5,10 +5,6 @@ Buzzer::Buzzer() : Task(TASK_IMMEDIATE, TASK_ONCE, &scheduler, false), pin(BUZZE
     pinMode(pin, OUTPUT);
 }
 
-Buzzer::Buzzer(StatusRequest *request) : Task(TASK_IMMEDIATE, TASK_ONCE, &scheduler, false), pin(BUZZER), request(request)
-{
-}
-
 Buzzer::~Buzzer() {}
 
 void Buzzer::signal(uint16_t frequency, uint16_t duration)
