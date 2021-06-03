@@ -15,7 +15,7 @@ private:
     SPIClass *spi_dev;
     int LPS_CS;
     long measurement_delay;
-    long previous_time;
+    long previous_time = 0;
     float pressure;
     float temperature;
 

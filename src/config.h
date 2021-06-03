@@ -1,3 +1,16 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include <Arduino.h>
+#include <Servo.h>
+#include <buzzer.h>
+#include <pwm.h>
+#include <lps25hb.h>
+#include <rfm69.h>
+#include <blink.h>
+#include <imu.h>
+#include <TaskScheduler.h>
+
 #if defined(HALOSHIP)
 
 /*** LPS25HB Barometer ***/
@@ -16,6 +29,9 @@
 
 /*** PCA9635 PWM Driver ***/
 #define PWM_DRIVER_ADDRESS 0x70
+
+/*** Servo Motor ***/
+#define SERVO_PIN USER_PIN_1
 
 #endif
 
@@ -37,3 +53,5 @@
 // // BMX055　I2C adress of magnetic sensor
 // #define Addr_Mag 0x13
 // #endif
+
+#endif

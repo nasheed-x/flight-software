@@ -40,8 +40,8 @@ bool Barometer::Callback()
     {
         sensors_event_t pressure;
         sensors_event_t temp;
-        temp_driver->getEvent(&temp);
-        pressure_driver->getEvent(&pressure);
+        this->temp_driver->getEvent(&temp);
+        this->pressure_driver->getEvent(&pressure);
         this->temperature = temp.temperature;
         this->pressure = pressure.pressure;
         return true;
