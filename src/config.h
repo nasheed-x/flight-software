@@ -24,14 +24,20 @@
 #define RFM69_CS PC13
 
 /*** Exposed Digital Pin ***/
-#define USER_PIN_1 PA4
 #define LED USER_PIN_1
 
 /*** PCA9635 PWM Driver ***/
 #define PWM_DRIVER_ADDRESS 0x70
 
+/*** W25Q128JV SPI FLASH ***/
+#define FLASH_CS PC2
+#define FLASH_SCK PC10
+#define FLASH_MISO PC11
+#define FLASH_MOSI PC12
+
 /*** Servo Motor ***/
-#define SERVO_PIN USER_PIN_1
+#define DROGUE_CHUTE_SERVO_PIN PA4
+#define MAIN_CHUTE_SERVO_PIN PC15
 
 #endif
 
