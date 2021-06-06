@@ -8,9 +8,15 @@ Barometer *barometer;
 Blink *blinker;
 Transceiver *transceiver;
 IMU *imu;
-Servo servo;
+Servo main_chute_servo;
+Servo drogue_chute_servo;
 
 SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
+
+// SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
+// HENCE WRITE ALL MICROSECONDS IN DOUBLE
+// 2000 MICROSECONDS --> 1 MILLISECOND
+// 4000 MICROSECONDS --> 2 MILLISECOND
 
 enum state
 {
@@ -30,7 +36,8 @@ void setup()
     Wire.begin();
     Serial.begin(115200);
     LPS_SPI.begin();
-    servo.attach(SERVO_PIN);
+    main_chute_servo.attach(MAIN_CHUTE_SERVO_PIN);
+    drogue_chute_servo.attach(DROGUE_CHUTE_SERVO_PIN);
 
     // Wait until serial console is open, remove if not tethered to computer
     while (!Serial)
@@ -53,8 +60,6 @@ void setup()
     barometer->enable();
     imu->enable();
     transceiver->enable();
-
-    servo.write(180);
 }
 
 void loop()
