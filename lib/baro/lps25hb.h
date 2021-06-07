@@ -5,14 +5,19 @@
 #include <Adafruit_LPS2X.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
+#include <SPI.h>
 #include "chip.h"
+
+#define LPS_SCK PA5
+#define LPS_MISO PA6
+#define LPS_MOSI PA7
 
 class Barometer : public Task, public Chip
 {
 private:
     Adafruit_LPS25 *lps_driver;
     Adafruit_Sensor *temp_driver, *pressure_driver;
-    SPIClass *spi_dev;
+    SPIClass spi_dev;
     int LPS_CS;
     long measurement_delay;
     long previous_time = 0;
@@ -20,7 +25,7 @@ private:
     float temperature;
 
 public:
-    Barometer(int LPS_CS, SPIClass *LPS_SPI, long measurement_delay);
+    Barometer(int LPS_CS, long measurement_delay);
     ~Barometer();
 
     bool measurementReady();
