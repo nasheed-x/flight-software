@@ -12,9 +12,6 @@ Flash *flash;
 Servo main_chute_servo;
 Servo drogue_chute_servo;
 
-SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
-SPIClass FLASH_SPI(FLASH_MOSI, FLASH_MISO, FLASH_SCK);
-
 // SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
 // HENCE WRITE ALL MICROSECONDS IN DOUBLE
 // 2000 MICROSECONDS --> 1 MILLISECOND
@@ -37,7 +34,6 @@ void setup()
     // Initialize communication
     Wire.begin();
     Serial.begin(115200);
-    LPS_SPI.begin();
     main_chute_servo.attach(MAIN_CHUTE_SERVO_PIN);
     drogue_chute_servo.attach(DROGUE_CHUTE_SERVO_PIN);
 
@@ -50,11 +46,12 @@ void setup()
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
-    blinker = new Blink(pwm);
-    barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
+    barometer = new Barometer(LPS_CS, 500);
     transceiver = new Transceiver(RFM69_CS, RFM69_INT);
     imu = new IMU(500);
     flash = new Flash(FLASH_CS);
+
+    blinker = new Blink(pwm);
 
     // Run sensor check
     check_sensors(pwm, barometer, transceiver, imu, flash)
