@@ -13,7 +13,7 @@ PWMControl::PWMControl() : Task(TASK_IMMEDIATE, TASK_FOREVER, &scheduler, false)
 
     // See https://www.nxp.com/docs/en/data-sheet/PCA9635.pdf#page=17
     this->driver->writeMode(PCA9635_MODE1, 0b10000001);
-    this->driver->writeMode(PCA9635_MODE2, 53);
+    this->driver->writeMode(PCA9635_MODE2, 21);
 
     // Initialize
     this->driver->begin();
