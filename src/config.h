@@ -9,9 +9,14 @@
 #include <rfm69.h>
 #include <blink.h>
 #include <imu.h>
+#include <flash.h>
 #include <TaskScheduler.h>
 
 #if defined(HALOSHIP)
+
+#if !defined(STM32F4)
+#define STM32F4
+#endif
 
 /*** LPS25HB Barometer ***/
 #define LPS_CS PC6

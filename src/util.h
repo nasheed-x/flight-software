@@ -3,7 +3,11 @@
 
 #include "config.h"
 
-bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiver, IMU *imu)
+bool check_sensors(PWMControl *pwm,
+                   Barometer *barometer,
+                   Transceiver *transceiver,
+                   IMU *imu,
+                   Flash *flash)
 {
     Serial.println("************************************");
     Serial.println("Conducting status check on all ICs...");
@@ -53,6 +57,17 @@ bool check_sensors(PWMControl *pwm, Barometer *barometer, Transceiver *transceiv
     else
     {
         Serial.println("IMU connection failed \xE2\x9C\x97");
+        error = false;
+    }
+
+    // Check status of WINBOND Flash
+    if (flash->checkStatus())
+    {
+        Serial.println("Flash connection success! \xE2\x9C\x93");
+    }
+    else
+    {
+        Serial.println("Flash connection failed \xE2\x9C\x97");
         error = false;
     }
 

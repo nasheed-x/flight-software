@@ -8,10 +8,12 @@ Barometer *barometer;
 Blink *blinker;
 Transceiver *transceiver;
 IMU *imu;
+Flash *flash;
 Servo main_chute_servo;
 Servo drogue_chute_servo;
 
 SPIClass LPS_SPI(LPS_MOSI, LPS_MISO, LPS_SCK);
+SPIClass FLASH_SPI(FLASH_MOSI, FLASH_MISO, FLASH_SCK);
 
 // SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
 // HENCE WRITE ALL MICROSECONDS IN DOUBLE
@@ -52,9 +54,12 @@ void setup()
     barometer = new Barometer(LPS_CS, &LPS_SPI, 500);
     transceiver = new Transceiver(RFM69_CS, RFM69_INT);
     imu = new IMU(500);
+    flash = new Flash(FLASH_CS);
 
     // Run sensor check
-    check_sensors(pwm, barometer, transceiver, imu) ? buzzer->signalSuccess() : buzzer->signalFail();
+    check_sensors(pwm, barometer, transceiver, imu, flash)
+        ? buzzer->signalSuccess()
+        : buzzer->signalFail();
 
     // Enable chips
     barometer->enable();

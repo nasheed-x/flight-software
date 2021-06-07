@@ -1,14 +1,21 @@
-#ifndef FLASH_h
-#define FLASH_h
+#ifndef W25Q_FLASH_H
+#define W25Q_FLASH_H
 
-#include <scheduler.h>
 #include <Arduino.h>
-#include "SPIMemory.h"
+#include <SPIFlash.h>
+#include "chip.h"
+#include "scheduler.h"
 
-class Flash
+class Flash : public Chip
 {
 private:
+    SPIFlash *driver;
+
 public:
+    Flash(uint8_t FLASH_CS);
+    ~Flash();
+
+    bool checkStatus();
 };
 
 #endif
