@@ -10,6 +10,7 @@
 #include <blink.h>
 #include <imu.h>
 #include <flash.h>
+#include <gps.h>
 #include <TaskScheduler.h>
 
 #if defined(HALOSHIP)

@@ -26,6 +26,7 @@ Barometer *barometer;     // Altitude + pressure
 Transceiver *transceiver; // RF Communication
 IMU *imu;                 // Orientation
 Flash *flash;             // Memory
+GPS *gps;                 // GPS
 Servo main_chute_servo;   // Deployment
 Servo drogue_chute_servo; // Deployment
 Blink *blinker;           // Blink task with PWM control
@@ -51,11 +52,12 @@ void setup()
     barometer = new Barometer(LPS_CS, 500);
     imu = new IMU(500);
     flash = new Flash(FLASH_CS);
-    transceiver = new Transceiver(RFM69_CS, RFM69_INT);
+    gps = new GPS(500);
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT, barometer, gps, 500);
     blinker = new Blink(pwm);
 
     // Run sensor check
-    check_sensors(pwm, barometer, transceiver, imu, flash)
+    check_sensors(pwm, barometer, transceiver, imu, flash, gps)
         ? buzzer->signalSuccess()
         : buzzer->signalFail();
 
@@ -63,13 +65,6 @@ void setup()
     barometer->enable();
     imu->enable();
     transceiver->enable();
-    SFE_UBLOX_GNSS myGNSS;
-    if (myGNSS.begin() == true) //Connect to the u-blox module using Wire port
-    {
-        Serial.println(F("u-blox working!!!"));
-        while (1)
-            ;
-    }
 }
 
 void loop()
