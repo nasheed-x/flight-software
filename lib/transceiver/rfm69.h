@@ -20,6 +20,8 @@ public:
     Transceiver(int RFM69_CS, int RFM69_INT);
     ~Transceiver();
 
+    uint8_t *getLastBuffer();
+
     // Task virtual methods
     bool Callback();
     bool OnEnable();

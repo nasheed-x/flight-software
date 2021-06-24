@@ -7,11 +7,15 @@ Transceiver::Transceiver(int RFM69_CS, int RFM69_INT) : Task(TASK_MILLISECOND, T
 
 Transceiver::~Transceiver() {}
 
+uint8_t *Transceiver::getLastBuffer()
+{
+    return this->buffer;
+}
+
 bool Transceiver::Callback()
 {
     if (this->driver->available())
     {
-        // Should be a message for us now
         uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
         uint8_t len = sizeof(buf);
         this->buffer = buf;
@@ -21,6 +25,7 @@ bool Transceiver::Callback()
             if (!len)
                 return false;
             buf[len] = 0;
+            Serial.println((char *)(this->getLastBuffer()));
         }
 
         return true;

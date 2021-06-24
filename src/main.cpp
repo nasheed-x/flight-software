@@ -1,16 +1,6 @@
 #include "config.h"
 #include "util.h"
-
-// Instantiate objects
-Buzzer *buzzer;
-PWMControl *pwm;
-Barometer *barometer;
-Blink *blinker;
-Transceiver *transceiver;
-IMU *imu;
-Flash *flash;
-Servo main_chute_servo;
-Servo drogue_chute_servo;
+#include "SparkFun_u-blox_GNSS_Arduino_Library.h"
 
 // SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
 // HENCE WRITE ALL MICROSECONDS IN DOUBLE
@@ -29,13 +19,25 @@ enum state
     END
 };
 
+// Instantiate submodules
+Buzzer *buzzer;           // Audio notification
+PWMControl *pwm;          // PWM control
+Barometer *barometer;     // Altitude + pressure
+Transceiver *transceiver; // RF Communication
+IMU *imu;                 // Orientation
+Flash *flash;             // Memory
+Servo main_chute_servo;   // Deployment
+Servo drogue_chute_servo; // Deployment
+Blink *blinker;           // Blink task with PWM control
+state current_state;      // State machine
+
 void setup()
 {
     // Initialize communication
     Wire.begin();
     Serial.begin(115200);
-    main_chute_servo.attach(MAIN_CHUTE_SERVO_PIN);
-    drogue_chute_servo.attach(DROGUE_CHUTE_SERVO_PIN);
+
+    current_state = PRELAUNCH;
 
     // Wait until serial console is open, remove if not tethered to computer
     while (!Serial)
@@ -47,10 +49,9 @@ void setup()
     buzzer = new Buzzer();
     pwm = new PWMControl();
     barometer = new Barometer(LPS_CS, 500);
-    transceiver = new Transceiver(RFM69_CS, RFM69_INT);
     imu = new IMU(500);
     flash = new Flash(FLASH_CS);
-
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT);
     blinker = new Blink(pwm);
 
     // Run sensor check
@@ -62,8 +63,16 @@ void setup()
     barometer->enable();
     imu->enable();
     transceiver->enable();
+    SFE_UBLOX_GNSS myGNSS;
+    if (myGNSS.begin() == true) //Connect to the u-blox module using Wire port
+    {
+        Serial.println(F("u-blox working!!!"));
+        while (1)
+            ;
+    }
 }
 
 void loop()
 {
+    // scheduler.execute();
 }
