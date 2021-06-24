@@ -1,21 +1,52 @@
 #include "rfm69.h"
 
-Transceiver::Transceiver(int RFM69_CS, int RFM69_INT) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false)
+Transceiver::Transceiver(int RFM69_CS, int RFM69_INT, Barometer *barometer, GPS *gps, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
+                                                                                                                measurements_delay(measurement_delay),
+                                                                                                                previous_time(0)
 {
     this->driver = new RH_RF69(RFM69_CS, RFM69_INT);
+    this->barometer = barometer;
+    this->gps = gps;
 }
 
 Transceiver::~Transceiver() {}
 
-uint8_t *Transceiver::getLastBuffer()
+bool Transceiver::measurementsReady()
 {
-    return this->buffer;
+
+    long current_time = millis();
+    if (current_time - this->previous_time >= this->measurements_delay)
+    {
+        this->previous_time = current_time;
+        return true;
+    }
+    return false;
 }
 
 bool Transceiver::Callback()
 {
+    long current_time = millis();
+    if (measurementsReady())
+    {
+        char radiopacket[RH_RF69_MAX_MESSAGE_LEN];
+        snprintf(radiopacket, RH_RF69_MAX_MESSAGE_LEN, "%f\n%f\n%d\n%d\n%d\n ",
+                 this->barometer->getPressure(),
+                 this->barometer->getTemperature(),
+                 this->gps->getAltitude(),
+                 this->gps->getLatitude(),
+                 this->gps->getLongitude());
+        // Send a message!
+        this->driver->send((uint8_t *)radiopacket, sizeof(radiopacket));
+        this->driver->waitPacketSent();
+        this->previous_time = current_time;
+        return true;
+    }
+    return false;
+    ;
+
     if (this->driver->available())
     {
+        // Should be a message for us now
         uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
         uint8_t len = sizeof(buf);
         this->buffer = buf;
@@ -25,7 +56,6 @@ bool Transceiver::Callback()
             if (!len)
                 return false;
             buf[len] = 0;
-            Serial.println((char *)(this->getLastBuffer()));
         }
 
         return true;
