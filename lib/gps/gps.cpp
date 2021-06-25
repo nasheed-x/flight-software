@@ -63,6 +63,5 @@ void GPS::OnDisable()
 
 bool GPS::checkStatus()
 {
-    Serial.println("gps Checking status");
     return this->gps_driver->begin();
 }
