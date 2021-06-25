@@ -7,9 +7,6 @@ GPS::GPS(long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &schedul
                                    latitude(-1),
                                    longitude(-1)
 {
-    // this->spi_dev = SPIClass(LPS_MOSI, LPS_MISO, LPS_SCK);
-    // this->spi_dev.begin();
-    // this->LPS_CS = LPS_CS;
     this->gps_driver = new SFE_UBLOX_GNSS();
 }
 
