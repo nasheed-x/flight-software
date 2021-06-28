@@ -1,3 +1,6 @@
+#ifndef IMU_H
+#define IMU_H
+
 #include <scheduler.h>
 #include <Arduino.h>
 #include <SPI.h>
@@ -26,6 +29,10 @@ public:
 
     bool measurementReady();
 
+    float getAccelerationX();
+    float getAccelerationY();
+    float getAccelerationZ();
+
     // Task virtual methods
     bool Callback();
     bool OnEnable();
@@ -34,3 +41,5 @@ public:
     // Chip virtual methods
     bool checkStatus();
 };
+
+#endif

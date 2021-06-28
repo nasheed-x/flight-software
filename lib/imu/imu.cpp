@@ -19,6 +19,21 @@ bool IMU::measurementReady()
     return false;
 }
 
+float IMU::getAccelerationX()
+{
+    return acc_x;
+}
+
+float IMU::getAccelerationY()
+{
+    return acc_y;
+}
+
+float IMU::getAccelerationZ()
+{
+    return acc_z;
+}
+
 bool IMU::Callback()
 {
     if (measurementReady())
