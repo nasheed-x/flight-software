@@ -1,6 +1,5 @@
 #include "config.h"
 #include "util.h"
-#include "SparkFun_u-blox_GNSS_Arduino_Library.h"
 
 // SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
 // HENCE WRITE ALL MICROSECONDS IN DOUBLE
