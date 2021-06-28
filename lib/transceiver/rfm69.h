@@ -10,7 +10,13 @@
 #include <Arduino.h>
 #include <lps25hb.h>
 #include <gps.h>
+#include <imu.h>
 #include "chip.h"
+
+/*** Factors ***/
+#define PRESSURE_FACTOR 10
+#define TEMPERATURE_FACTOR 1000
+#define ACCELERATION_FACTOR 10000
 
 class Transceiver : public Task, public Chip
 {
@@ -19,11 +25,12 @@ private:
     uint8_t *buffer;
     Barometer *barometer;
     GPS *gps;
+    IMU *imu;
     long measurements_delay;
     long previous_time = 0;
 
 public:
-    Transceiver(int RFM69_CS, int RFM69_INT, Barometer *barometer, GPS *gps, long measurements_delay);
+    Transceiver(int RFM69_CS, int RFM69_INT, IMU *imu, Barometer *barometer, GPS *gps, long measurements_delay);
     ~Transceiver();
 
     bool measurementsReady();

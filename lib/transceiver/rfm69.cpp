@@ -1,12 +1,13 @@
 #include "rfm69.h"
 
-Transceiver::Transceiver(int RFM69_CS, int RFM69_INT, Barometer *barometer, GPS *gps, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
-                                                                                                                measurements_delay(measurement_delay),
-                                                                                                                previous_time(0)
+Transceiver::Transceiver(int RFM69_CS, int RFM69_INT, IMU *imu, Barometer *barometer, GPS *gps, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
+                                                                                                                          measurements_delay(measurement_delay),
+                                                                                                                          previous_time(0)
 {
     this->driver = new RH_RF69(RFM69_CS, RFM69_INT);
     this->barometer = barometer;
     this->gps = gps;
+    this->imu = imu;
 }
 
 Transceiver::~Transceiver() {}
@@ -29,20 +30,22 @@ bool Transceiver::Callback()
     if (measurementsReady())
     {
         char radiopacket[RH_RF69_MAX_MESSAGE_LEN];
-        snprintf(radiopacket, RH_RF69_MAX_MESSAGE_LEN, "%f\n%f\n%d\n%d\n%d\n ",
-                 this->barometer->getPressure(),
-                 this->barometer->getTemperature(),
-                 this->gps->getAltitude(),
-                 this->gps->getLatitude(),
-                 this->gps->getLongitude());
+        snprintf(radiopacket, RH_RF69_MAX_MESSAGE_LEN, "%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
+                 (uint16_t)(this->barometer->getPressure() * PRESSURE_FACTOR),
+                 (uint16_t)(this->barometer->getTemperature() * TEMPERATURE_FACTOR),
+                 (uint16_t)this->gps->getAltitude(),
+                 (uint16_t)this->gps->getLatitude(),
+                 (uint16_t)this->gps->getLongitude(),
+                 (uint16_t)(this->imu->getAccelerationX() * ACCELERATION_FACTOR),
+                 (uint16_t)(this->imu->getAccelerationY() * ACCELERATION_FACTOR),
+                 (uint16_t)(this->imu->getAccelerationZ() * ACCELERATION_FACTOR));
         // Send a message!
+        Serial.println(radiopacket);
         this->driver->send((uint8_t *)radiopacket, sizeof(radiopacket));
         this->driver->waitPacketSent();
         this->previous_time = current_time;
         return true;
-    }
-    return false;
-    ;
+    };
 
     if (this->driver->available())
     {
