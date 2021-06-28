@@ -49,11 +49,11 @@ void setup()
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
-    barometer = new Barometer(LPS_CS, 500);
-    imu = new IMU(500);
+    barometer = new Barometer(LPS_CS, 2000);
+    imu = new IMU(2000);
     flash = new Flash(FLASH_CS);
-    gps = new GPS(500);
-    transceiver = new Transceiver(RFM69_CS, RFM69_INT, barometer, gps, 500);
+    gps = new GPS(2000);
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT, barometer, gps, 2000);
     blinker = new Blink(pwm);
 
     // Run sensor check
@@ -65,9 +65,10 @@ void setup()
     barometer->enable();
     imu->enable();
     transceiver->enable();
+    gps->enable();
 }
 
 void loop()
 {
-    // scheduler.execute();
+    scheduler.execute();
 }
