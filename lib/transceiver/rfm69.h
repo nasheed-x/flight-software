@@ -3,6 +3,7 @@
 
 #define RFM69_RST PC1
 #define RFM69_FREQ 915.0
+#define PREAMBLE_LEN 8
 
 #include <scheduler.h>
 #include <RH_RF69.h>
@@ -13,27 +14,23 @@
 #include <imu.h>
 #include "chip.h"
 
-/*** Factors ***/
-#define PRESSURE_FACTOR 10
-#define TEMPERATURE_FACTOR 1000
-#define ACCELERATION_FACTOR 10000
-
 class Transceiver : public Task, public Chip
 {
 private:
     RH_RF69 *driver;
-    uint8_t *buffer;
-    Barometer *barometer;
-    GPS *gps;
-    IMU *imu;
+    uint8_t *output_buffer[128];
+    uint8_t buffer[RH_RF69_MAX_MESSAGE_LEN];
     long measurements_delay;
     long previous_time = 0;
+    uint16_t offset = 0;
+    uint32_t packet_id = 0;
 
 public:
-    Transceiver(int RFM69_CS, int RFM69_INT, IMU *imu, Barometer *barometer, GPS *gps, long measurements_delay);
+    Transceiver(int RFM69_CS, int RFM69_INT, long measurements_delay);
     ~Transceiver();
 
-    bool measurementsReady();
+    bool timeElapsed();
+    void storeInBuffer(uint8_t *packet, int size);
 
     // Task virtual methods
     bool Callback();

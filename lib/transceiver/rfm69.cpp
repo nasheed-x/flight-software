@@ -1,18 +1,15 @@
 #include "rfm69.h"
 
-Transceiver::Transceiver(int RFM69_CS, int RFM69_INT, IMU *imu, Barometer *barometer, GPS *gps, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
-                                                                                                                          measurements_delay(measurement_delay),
-                                                                                                                          previous_time(0)
+Transceiver::Transceiver(int RFM69_CS, int RFM69_INT, long measurement_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
+                                                                                measurements_delay(measurement_delay),
+                                                                                previous_time(0)
 {
     this->driver = new RH_RF69(RFM69_CS, RFM69_INT);
-    this->barometer = barometer;
-    this->gps = gps;
-    this->imu = imu;
 }
 
 Transceiver::~Transceiver() {}
 
-bool Transceiver::measurementsReady()
+bool Transceiver::timeElapsed()
 {
 
     long current_time = millis();
@@ -24,52 +21,60 @@ bool Transceiver::measurementsReady()
     return false;
 }
 
+void Transceiver::storeInBuffer(uint8_t *packet, int size)
+{
+    memcpy(this->output_buffer, packet, size);
+}
+
 bool Transceiver::Callback()
 {
+
     long current_time = millis();
-    if (measurementsReady())
+
+    // sending first packet
+    if (timeElapsed())
     {
-        char radiopacket[RH_RF69_MAX_MESSAGE_LEN];
-        snprintf(radiopacket, RH_RF69_MAX_MESSAGE_LEN, "%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
-                 (uint16_t)(this->barometer->getPressure() * PRESSURE_FACTOR),
-                 (uint16_t)(this->barometer->getTemperature() * TEMPERATURE_FACTOR),
-                 (uint16_t)this->gps->getAltitude(),
-                 (uint16_t)this->gps->getLatitude(),
-                 (uint16_t)this->gps->getLongitude(),
-                 (uint16_t)(this->imu->getAccelerationX() * ACCELERATION_FACTOR),
-                 (uint16_t)(this->imu->getAccelerationY() * ACCELERATION_FACTOR),
-                 (uint16_t)(this->imu->getAccelerationZ() * ACCELERATION_FACTOR));
-        // Send a message!
-        Serial.println(radiopacket);
-        this->driver->send((uint8_t *)radiopacket, sizeof(radiopacket));
-        this->driver->waitPacketSent();
-        this->previous_time = current_time;
-        return true;
-    };
+        if (this->offset == 0)
+        {
+            char message[RH_RF69_MAX_MESSAGE_LEN];
+            snprintf(message, sizeof(message), "#%.4ld:1\n", this->packet_id);
+            memcpy(message + PREAMBLE_LEN, (char *)this->output_buffer + this->offset, 45);
+            // Serial.write(message, 45 + PREAMBLE_LEN);
+            // Serial.println();
+            this->driver->send((uint8_t *)message, 45 + PREAMBLE_LEN);
+            this->driver->waitPacketSent();
+            this->offset = 46;
+        }
+        else
+        {
+            char message[RH_RF69_MAX_MESSAGE_LEN];
+            snprintf(message, sizeof(message), "#%.4ld:2\n", this->packet_id);
+            memcpy(message + PREAMBLE_LEN, (char *)this->output_buffer + this->offset, 32);
+            // Serial.write(message, 32 + PREAMBLE_LEN);
+            this->driver->send((uint8_t *)message, 32 + PREAMBLE_LEN);
+            this->driver->waitPacketSent();
+            this->offset = 0;
+            this->packet_id++;
+        }
+    }
 
     if (this->driver->available())
     {
         // Should be a message for us now
         uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
         uint8_t len = sizeof(buf);
-        this->buffer = buf;
-
-        if (this->driver->recv(this->buffer, &len))
+        if (this->driver->recv(buf, &len))
         {
             if (!len)
                 return false;
             buf[len] = 0;
         }
-
-        return true;
     }
-
-    return false;
+    return true;
 }
 
 bool Transceiver::OnEnable()
 {
-
     if (!(this->driver->setFrequency(RFM69_FREQ)))
     {
         return false;
