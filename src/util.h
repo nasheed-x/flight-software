@@ -72,6 +72,17 @@ bool check_sensors(PWMControl *pwm,
         error = false;
     }
 
+    // // Check status of FRAM
+    // if (fram->checkStatus())
+    // {
+    //     Serial.println("FRAM connection success! \xE2\x9C\x93");
+    // }
+    // else
+    // {
+    //     Serial.println("FRAM connection failed \xE2\x9C\x97");
+    //     error = false;
+    // }
+
     if (gps->checkStatus())
     {
         Serial.println("GPS connection success! \xE2\x9C\x93");
