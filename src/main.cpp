@@ -6,38 +6,28 @@
 // 2000 MICROSECONDS --> 1 MILLISECOND
 // 4000 MICROSECONDS --> 2 MILLISECOND
 
-enum state
-{
-    PRELAUNCH,
-    LAUNCH_READY,
-    MOTOR_BURN,
-    BURNOUT,
-    APOGEE,
-    POST_DROGUE,
-    POST_MAIN,
-    END
-};
-
 // Instantiate submodules
 Buzzer *buzzer;           // Audio notification
 PWMControl *pwm;          // PWM control
 Barometer *barometer;     // Altitude + pressure
 Transceiver *transceiver; // RF Communication
 IMU *imu;                 // Orientation
-Flash *flash;             // Memory
+Flash *flash;             // Flash Memory
 GPS *gps;                 // GPS
 Servo main_chute_servo;   // Deployment
 Servo drogue_chute_servo; // Deployment
 Blink *blinker;           // Blink task with PWM control
-state current_state;      // State machine
+Packet *packet;           // Packet handler class
+State *current_state;     // State machine
 
 void setup()
 {
     // Initialize communication
     Wire.begin();
+    Wire.setClock(400000); // Increase I2C clock speed to 400kHz
     Serial.begin(115200);
 
-    current_state = PRELAUNCH;
+    *current_state = PRELAUNCH;
 
     // Wait until serial console is open, remove if not tethered to computer
     while (!Serial)
@@ -48,11 +38,12 @@ void setup()
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
-    barometer = new Barometer(LPS_CS, 2000);
-    imu = new IMU(2000);
-    flash = new Flash(FLASH_CS);
-    gps = new GPS(2000);
-    transceiver = new Transceiver(RFM69_CS, RFM69_INT, barometer, gps, 2000);
+    barometer = new Barometer(LPS_CS, 50);
+    imu = new IMU(50);
+    gps = new GPS(200);
+    flash = new Flash(FLASH_CS, 50, buzzer);
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT, 1000);
+    packet = new Packet(transceiver, flash, imu, barometer, gps, current_state, 50);
     blinker = new Blink(pwm);
 
     // Run sensor check
@@ -63,8 +54,10 @@ void setup()
     // Enable chips
     barometer->enable();
     imu->enable();
-    transceiver->enable();
     gps->enable();
+    packet->enable();
+    // flash->enableDelayed(1000);
+    // transceiver->enableDelayed(1000);
 }
 
 void loop()
