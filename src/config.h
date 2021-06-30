@@ -11,6 +11,8 @@
 #include <imu.h>
 #include <flash.h>
 #include <gps.h>
+#include <packet.h>
+#include <state.h>
 #include <TaskScheduler.h>
 
 #if defined(HALOSHIP)
@@ -35,11 +37,17 @@
 /*** PCA9635 PWM Driver ***/
 #define PWM_DRIVER_ADDRESS 0x70
 
+/*** BMX055 IMU ***/
+// const int ACC_CS = PC4;
+
 /*** W25Q128JV SPI FLASH ***/
 #define FLASH_CS PC2
 #define FLASH_SCK PC10
 #define FLASH_MISO PC11
 #define FLASH_MOSI PC12
+
+/** MB85RS SPI FRAM ***/
+#define FRAM_CS PB8
 
 /*** Servo Motor ***/
 #define DROGUE_CHUTE_SERVO_PIN PA4

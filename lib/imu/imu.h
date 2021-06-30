@@ -11,7 +11,6 @@
 #define BMX_MISO PB14
 #define BMX_MOSI PB15
 
-#define ACC_CS PC7
 #define GYR_CS PC4
 
 class IMU : public Task, public Chip
