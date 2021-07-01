@@ -15,6 +15,13 @@
 #include <state.h>
 #include "chip.h"
 
+enum Button
+{
+    LAUNCH,
+    END_BUTTON,
+    RESET_BUTTON
+};
+
 class Transceiver : public Task, public Chip
 {
 private:
@@ -25,6 +32,7 @@ private:
     long previous_time = 0;
     uint16_t offset = 0;
     uint32_t packet_id = 0;
+    Button button;
 
 public:
     Transceiver(int RFM69_CS, int RFM69_INT, long measurements_delay);
@@ -32,6 +40,7 @@ public:
 
     bool timeElapsed();
     void storeInBuffer(uint8_t *packet, int size);
+    Button getButton();
 
     // Task virtual methods
     bool Callback();

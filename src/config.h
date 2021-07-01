@@ -14,6 +14,7 @@
 #include <packet.h>
 #include <state.h>
 #include <TaskScheduler.h>
+#include <fsm.h>
 
 #if defined(HALOSHIP)
 

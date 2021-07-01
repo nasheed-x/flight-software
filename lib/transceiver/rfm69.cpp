@@ -26,6 +26,9 @@ void Transceiver::storeInBuffer(uint8_t *packet, int size)
     memcpy(this->output_buffer, packet, size);
 }
 
+Button Transceiver::getButton(){
+    return this->button;
+}
 bool Transceiver::Callback()
 {
 
@@ -39,8 +42,8 @@ bool Transceiver::Callback()
             char message[RH_RF69_MAX_MESSAGE_LEN];
             snprintf(message, sizeof(message), "#%.4ld:1\n", this->packet_id);
             memcpy(message + PREAMBLE_LEN, (char *)this->output_buffer + this->offset, 45);
-            // Serial.write(message, 45 + PREAMBLE_LEN);
-            // Serial.println();
+            Serial.write(message, 45 + PREAMBLE_LEN);
+            Serial.println();
             this->driver->send((uint8_t *)message, 45 + PREAMBLE_LEN);
             this->driver->waitPacketSent();
             this->offset = 46;
@@ -50,7 +53,7 @@ bool Transceiver::Callback()
             char message[RH_RF69_MAX_MESSAGE_LEN];
             snprintf(message, sizeof(message), "#%.4ld:2\n", this->packet_id);
             memcpy(message + PREAMBLE_LEN, (char *)this->output_buffer + this->offset, 32);
-            // Serial.write(message, 32 + PREAMBLE_LEN);
+            Serial.write(message, 32 + PREAMBLE_LEN);
             this->driver->send((uint8_t *)message, 32 + PREAMBLE_LEN);
             this->driver->waitPacketSent();
             this->offset = 0;
@@ -72,27 +75,30 @@ bool Transceiver::Callback()
 
         if (strcmp((char *)buf, "launch") == 0)
         {
-            if (current_state == PRELAUNCH)
-            {
-                current_state = LAUNCH_READY;
-                Serial.println("Setting state to Launch Ready...");
-                Serial.println(current_state);
-            }
+            this->button = LAUNCH;
+            // if (current_state == PRELAUNCH)
+            // {
+            //     current_state = LAUNCH_READY;
+            //     Serial.println("Setting state to Launch Ready...");
+            //     Serial.println(current_state);
+            // }
         }
 
         else if (strcmp((char *)buf, "end") == 0)
         {
-            if (current_state == PRELAUNCH || current_state == POST_MAIN)
-            {
-                current_state = END;
-                Serial.println("Setting state to End Flight...");
-                Serial.println(current_state);
-            }
+            this->button = END_BUTTON;
+            // if (current_state == PRELAUNCH || current_state == POST_MAIN)
+            // {
+            //     current_state = END;
+            //     Serial.println("Setting state to End Flight...");
+            //     Serial.println(current_state);
+            // }
         }
 
         else if (strcmp((char *)buf, "reset") == 0)
         {
-            current_state = PRELAUNCH;
+            this->button = RESET_BUTTON;
+            // current_state = PRELAUNCH;
             NVIC_SystemReset();
             Serial.println("Reset!");
             Serial.println(current_state);

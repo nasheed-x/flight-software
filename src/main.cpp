@@ -18,6 +18,7 @@ Servo main_chute_servo;   // Deployment
 Servo drogue_chute_servo; // Deployment
 Blink *blinker;           // Blink task with PWM control
 Packet *packet;           // Packet handler class
+FSM *fsm;           // Packet handler class
 // State *current_state;     // State machine
 
 void setup()
@@ -45,6 +46,7 @@ void setup()
     transceiver = new Transceiver(RFM69_CS, RFM69_INT, 1000);
     packet = new Packet(transceiver, flash, imu, barometer, gps, 50);
     blinker = new Blink(pwm);
+    fsm = new FSM(imu, barometer, gps, transceiver, 50);
 
     // Run sensor check
     check_sensors(pwm, barometer, transceiver, imu, flash, gps)
@@ -58,6 +60,7 @@ void setup()
     packet->enable();
     // flash->enableDelayed(1000);
     transceiver->enableDelayed(1000);
+    fsm->enable();
 }
 
 void loop()
