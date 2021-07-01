@@ -60,7 +60,6 @@ bool Transceiver::Callback()
 
     if (this->driver->available())
     {
-        // Should be a message for us now
         uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
         uint8_t len = sizeof(buf);
         if (this->driver->recv(buf, &len))
@@ -73,17 +72,29 @@ bool Transceiver::Callback()
 
         if (strcmp((char *)buf, "launch") == 0)
         {
-            Serial.println("state set to Launch Ready");
-            Serial.println(current_state);
-            current_state=LAUNCH_READY;
-        }else if (strcmp((char *)buf, "end")==0){
-            current_state=END;
-            Serial.println("state set to Flight End");
-            Serial.println(current_state);
-        }else if (strcmp((char *)buf, "reset")==0){
+            if (current_state == PRELAUNCH)
+            {
+                current_state = LAUNCH_READY;
+                Serial.println("Setting state to Launch Ready...");
+                Serial.println(current_state);
+            }
+        }
+
+        else if (strcmp((char *)buf, "end") == 0)
+        {
+            if (current_state == PRELAUNCH || current_state == POST_MAIN)
+            {
+                current_state = END;
+                Serial.println("Setting state to End Flight...");
+                Serial.println(current_state);
+            }
+        }
+
+        else if (strcmp((char *)buf, "reset") == 0)
+        {
             current_state = PRELAUNCH;
             NVIC_SystemReset();
-            Serial.println("Software reset and state set to Prelaunch");
+            Serial.println("Reset!");
             Serial.println(current_state);
         }
     }
