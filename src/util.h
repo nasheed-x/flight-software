@@ -96,4 +96,12 @@ bool check_sensors(PWMControl *pwm,
     return error;
 }
 
+// char writeState(State state){
+//     if (state===PRELAUNCH){
+//         return "S0";
+//     }else{
+//         return "S1";
+//     }
+// }
+
 #endif

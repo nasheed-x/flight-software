@@ -28,7 +28,7 @@ private:
     Barometer *barometer;
     GPS *gps;
     IMU *imu;
-    State *state;
+    // State *state;
     long measurements_delay;
     long previous_time = 0;
 
@@ -37,7 +37,7 @@ public:
            Flash *flash, IMU *imu,
            Barometer *barometer,
            GPS *gps,
-           State *current_state,
+        //    State *current_state,
            long measurements_delay);
     ~Packet();
 

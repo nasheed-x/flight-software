@@ -3,7 +3,9 @@
 Packet::Packet(Transceiver *transceiver,
                Flash *flash, IMU *imu,
                Barometer *barometer,
-               GPS *gps, State *current_state,
+               GPS *gps,
+            //    State &current_state
+            //    State *current_state,
                long measurements_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
                                           measurements_delay(measurements_delay),
                                           previous_time(0)
@@ -13,7 +15,7 @@ Packet::Packet(Transceiver *transceiver,
     this->barometer = barometer;
     this->gps = gps;
     this->imu = imu;
-    this->state = current_state;
+    // this->state = current_state;
 }
 
 Packet::~Packet() {}
@@ -48,7 +50,9 @@ bool Packet::Callback()
                  (uint16_t)(this->imu->getAccelerationX() * ACCELERATION_FACTOR),
                  (uint16_t)(this->imu->getAccelerationY() * ACCELERATION_FACTOR),
                  (uint16_t)(this->imu->getAccelerationZ() * ACCELERATION_FACTOR),
-                 (int8_t)(*this->state),
+                //  (int8_t)(*this->state),
+                (int8_t)(current_state),
+                //  (int8_t)(writeState(current_state)),
                  (this->gps->getAltitude()),
                  (this->gps->getLatitude()),
                  (this->gps->getLongitude()));

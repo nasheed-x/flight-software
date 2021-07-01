@@ -67,7 +67,24 @@ bool Transceiver::Callback()
         {
             if (!len)
                 return false;
+            Serial.println((char *)buf);
             buf[len] = 0;
+        }
+
+        if (strcmp((char *)buf, "launch") == 0)
+        {
+            Serial.println("state set to Launch Ready");
+            Serial.println(current_state);
+            current_state=LAUNCH_READY;
+        }else if (strcmp((char *)buf, "end")==0){
+            current_state=END;
+            Serial.println("state set to Flight End");
+            Serial.println(current_state);
+        }else if (strcmp((char *)buf, "reset")==0){
+            current_state = PRELAUNCH;
+            NVIC_SystemReset();
+            Serial.println("Software reset and state set to Prelaunch");
+            Serial.println(current_state);
         }
     }
     return true;

@@ -12,6 +12,7 @@
 #include <lps25hb.h>
 #include <gps.h>
 #include <imu.h>
+#include <state.h>
 #include "chip.h"
 
 class Transceiver : public Task, public Chip

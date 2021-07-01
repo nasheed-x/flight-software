@@ -13,4 +13,6 @@ enum State
     END
 };
 
+extern State current_state;
+
 #endif

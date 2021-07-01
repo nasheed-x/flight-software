@@ -18,7 +18,7 @@ Servo main_chute_servo;   // Deployment
 Servo drogue_chute_servo; // Deployment
 Blink *blinker;           // Blink task with PWM control
 Packet *packet;           // Packet handler class
-State *current_state;     // State machine
+// State *current_state;     // State machine
 
 void setup()
 {
@@ -27,7 +27,7 @@ void setup()
     Wire.setClock(400000); // Increase I2C clock speed to 400kHz
     Serial.begin(115200);
 
-    *current_state = PRELAUNCH;
+    State current_state = PRELAUNCH;
 
     // Wait until serial console is open, remove if not tethered to computer
     while (!Serial)
@@ -43,7 +43,7 @@ void setup()
     gps = new GPS(200);
     flash = new Flash(FLASH_CS, 50, buzzer);
     transceiver = new Transceiver(RFM69_CS, RFM69_INT, 1000);
-    packet = new Packet(transceiver, flash, imu, barometer, gps, current_state, 50);
+    packet = new Packet(transceiver, flash, imu, barometer, gps, 50);
     blinker = new Blink(pwm);
 
     // Run sensor check
@@ -57,7 +57,7 @@ void setup()
     gps->enable();
     packet->enable();
     // flash->enableDelayed(1000);
-    // transceiver->enableDelayed(1000);
+    transceiver->enableDelayed(1000);
 }
 
 void loop()
