@@ -13,6 +13,6 @@ enum State
     END
 };
 
-extern State current_state;
+extern enum State current_state;
 
 #endif
