@@ -84,7 +84,7 @@ bool GPS::Callback()
 bool GPS::OnEnable()
 {
     this->driver->setI2COutput(COM_TYPE_UBX);
-    this->driver->setNavigationFrequency(10);
+    this->driver->setNavigationFrequency(20);
     this->day = this->driver->getDay();
     this->day = this->driver->getDay();
     this->month = this->driver->getMonth();
