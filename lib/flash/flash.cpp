@@ -31,16 +31,16 @@ bool Flash::Callback()
     {
         // Write data on memory offset
         // Serial.println((char *)this->storage_buffer);
-        // this->driver->writeBytes(FIRST_PAGE_OFFSET + (this->memory_unit_offset * 128), this->storage_buffer, this->unit_size);
+        this->driver->writeBytes(FIRST_PAGE_OFFSET + (this->memory_unit_offset * 128), this->storage_buffer, this->unit_size);
 
         // char read_buffer[this->unit_size];
         // this->driver->readBytes(FIRST_PAGE_OFFSET + (this->memory_unit_offset * 128), read_buffer, this->unit_size);
         // Serial.println((char *)read_buffer);
 
         // Update memory offset
-        // this->memory_unit_offset++;
-        // this->driver->blockErase4K(0);
-        // this->driver->writeBytes(0, &this->memory_unit_offset, 4);
+        this->memory_unit_offset++;
+        this->driver->blockErase4K(0);
+        this->driver->writeBytes(0, &this->memory_unit_offset, 4);
 
         // uint32_t test;
         // this->driver->readBytes(0, &test, 4);
