@@ -29,6 +29,10 @@ void Transceiver::storeInBuffer(uint8_t *packet, int size)
 Button Transceiver::getButton(){
     return this->button;
 }
+
+void Transceiver::buttonNone(){
+    this->button = NONE;
+}
 bool Transceiver::Callback()
 {
 

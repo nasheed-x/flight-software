@@ -17,6 +17,7 @@
 
 enum Button
 {
+    NONE,
     LAUNCH,
     END_BUTTON,
     RESET_BUTTON
@@ -32,7 +33,7 @@ private:
     long previous_time = 0;
     uint16_t offset = 0;
     uint32_t packet_id = 0;
-    Button button;
+    Button button = NONE;
 
 public:
     Transceiver(int RFM69_CS, int RFM69_INT, long measurements_delay);
@@ -41,6 +42,7 @@ public:
     bool timeElapsed();
     void storeInBuffer(uint8_t *packet, int size);
     Button getButton();
+    void buttonNone();
 
     // Task virtual methods
     bool Callback();

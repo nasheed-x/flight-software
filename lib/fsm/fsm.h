@@ -19,12 +19,13 @@
 #define BURNOUT_ACC_THRESHOLD 2
 #define AGL_THRESHOLD 1000
 #define PRESSURE_BUFFER_SIZE 5
+#define G_FACTOR 9.80665
 
 class FSM : public Task
 {
 private:
     uint8_t *buffer;
-    float pressure_buffer[PRESSURE_BUFFER_SIZE] ={0};
+    float pressure_buffer[PRESSURE_BUFFER_SIZE] ={2000};
     Barometer *barometer;
     Transceiver *transceiver;
     GPS *gps;
@@ -54,6 +55,7 @@ public:
 
 enum Event
 {
+    NO_EVENT,
     LIFTOFF,
     BURNOUT,
     APOGEE,

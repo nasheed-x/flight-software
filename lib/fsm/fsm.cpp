@@ -50,21 +50,23 @@ bool FSM::Callback()
     long current_time = millis();
     if (measurementsReady())
     {
-        Event event;
+        Event event = NO_EVENT;
         float height, accZ, pressure, temperature;
         bool descent;
 
         // Data Collection
-        pressure = this->barometer->getPressure() * PRESSURE_FACTOR;
-        temperature = this->barometer->getTemperature() * TEMPERATURE_FACTOR;
+        pressure = this->barometer->getPressure();
+        temperature = this->barometer->getTemperature();
         height = this->gps->getAltitude();
-        accZ = this->imu->getAccelerationZ() * ACCELERATION_FACTOR;
+        accZ = this->imu->getAccelerationZ() * G_FACTOR; 
 
         descent = storePressure(pressure);
 
         // Event Update
-        if (current_state == PRELAUNCH && accZ > LAUNCH_ACC_THRESHOLD)
+        if (current_state == LAUNCH_READY && accZ > LAUNCH_ACC_THRESHOLD)
         {
+            Serial.println("Z Acceleration");
+            Serial.println(accZ);
             event = LIFTOFF;
         }
         else if (current_state == POWERED_FLIGHT && accZ < BURNOUT_ACC_THRESHOLD)
@@ -90,6 +92,7 @@ bool FSM::Callback()
             if (this->transceiver->getButton() == LAUNCH)
             {
                 current_state = LAUNCH_READY;
+                this->transceiver->buttonNone();
                 Serial.println(current_state);
             }
             else if (this->transceiver->getButton() == END)
@@ -103,6 +106,8 @@ bool FSM::Callback()
             {
             case LIFTOFF:
                 /* Change the state */
+                Serial.println("INSIDE LIFTOFF");
+                Serial.println("LIFTOFF");
                 current_state = POWERED_FLIGHT;
                 break;
             }
