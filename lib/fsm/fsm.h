@@ -4,6 +4,7 @@
 #include <scheduler.h>
 #include <SPI.h>
 #include <Arduino.h>
+#include <Servo.h>
 #include <rfm69.h>
 #include <flash.h>
 #include <lps25hb.h>
@@ -30,6 +31,7 @@ private:
     Transceiver *transceiver;
     GPS *gps;
     IMU *imu;
+    Servo drogue_chute_servo;
     // State *state;
     int pressure_index = 0;
     long measurements_delay;
@@ -40,6 +42,7 @@ public:
         Barometer *barometer,
         GPS *gps,
         Transceiver *transceiver,
+        Servo drogue_chute_servo,
         //    State *current_state,
         long measurements_delay);
     ~FSM();

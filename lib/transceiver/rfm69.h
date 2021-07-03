@@ -18,7 +18,11 @@
 enum Button
 {
     NONE,
+    PRELAUNCH_BUTTON,
     LAUNCH,
+    TEST,
+    DROGUE_SHOOT,
+    MAIN_SHOOT,
     END_BUTTON,
     RESET_BUTTON
 };

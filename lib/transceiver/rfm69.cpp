@@ -26,11 +26,13 @@ void Transceiver::storeInBuffer(uint8_t *packet, int size)
     memcpy(this->output_buffer, packet, size);
 }
 
-Button Transceiver::getButton(){
+Button Transceiver::getButton()
+{
     return this->button;
 }
 
-void Transceiver::buttonNone(){
+void Transceiver::buttonNone()
+{
     this->button = NONE;
 }
 bool Transceiver::Callback()
@@ -77,32 +79,33 @@ bool Transceiver::Callback()
             buf[len] = 0;
         }
 
-        if (strcmp((char *)buf, "launch") == 0)
+        if (strcmp((char *)buf, "prelaunch") == 0)
+        {
+            this->button = PRELAUNCH_BUTTON;
+        }
+        else if (strcmp((char *)buf, "launch") == 0)
         {
             this->button = LAUNCH;
-            // if (current_state == PRELAUNCH)
-            // {
-            //     current_state = LAUNCH_READY;
-            //     Serial.println("Setting state to Launch Ready...");
-            //     Serial.println(current_state);
-            // }
         }
-
         else if (strcmp((char *)buf, "end") == 0)
         {
             this->button = END_BUTTON;
-            // if (current_state == PRELAUNCH || current_state == POST_MAIN)
-            // {
-            //     current_state = END;
-            //     Serial.println("Setting state to End Flight...");
-            //     Serial.println(current_state);
-            // }
         }
-
+        else if (strcmp((char *)buf, "test") == 0)
+        {
+            this->button = TEST;
+        }
+        else if (strcmp((char *)buf, "drogue") == 0)
+        {
+            this->button = DROGUE_SHOOT;
+        }
+        else if (strcmp((char *)buf, "main") == 0)
+        {
+            this->button = MAIN_SHOOT;
+        }
         else if (strcmp((char *)buf, "reset") == 0)
         {
             this->button = RESET_BUTTON;
-            // current_state = PRELAUNCH;
             NVIC_SystemReset();
             Serial.println("Reset!");
             Serial.println(current_state);

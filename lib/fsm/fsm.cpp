@@ -4,6 +4,7 @@ FSM::FSM(IMU *imu,
          Barometer *barometer,
          GPS *gps,
          Transceiver *transceiver,
+         Servo drogue_chute_servo,
          long measurements_delay) : Task(TASK_MILLISECOND, TASK_FOREVER, &scheduler, false),
                                     measurements_delay(measurements_delay),
                                     previous_time(0)
@@ -12,6 +13,7 @@ FSM::FSM(IMU *imu,
     this->barometer = barometer;
     this->gps = gps;
     this->imu = imu;
+    this->drogue_chute_servo = drogue_chute_servo;
     // this->state = current_state;
 }
 
@@ -40,9 +42,9 @@ bool FSM::storePressure(float pressure)
 
     this->pressure_buffer[this->pressure_index] = pressure;
     this->pressure_index++;
-    this->pressure_index = (this->pressure_index>=PRESSURE_BUFFER_SIZE) ? 0:this->pressure_index;
+    this->pressure_index = (this->pressure_index >= PRESSURE_BUFFER_SIZE) ? 0 : this->pressure_index;
 
-    return (sum/PRESSURE_BUFFER_SIZE < pressure) ? true:false;
+    return (sum / PRESSURE_BUFFER_SIZE < pressure) ? true : false;
 }
 
 bool FSM::Callback()
@@ -58,32 +60,9 @@ bool FSM::Callback()
         pressure = this->barometer->getPressure();
         temperature = this->barometer->getTemperature();
         height = this->gps->getAltitude();
-        accZ = this->imu->getAccelerationZ() * G_FACTOR; 
+        accZ = this->imu->getAccelerationZ() * G_FACTOR;
 
         descent = storePressure(pressure);
-
-        // Event Update
-        if (current_state == LAUNCH_READY && accZ > LAUNCH_ACC_THRESHOLD)
-        {
-            Serial.println("Z Acceleration");
-            Serial.println(accZ);
-            event = LIFTOFF;
-        }
-        else if (current_state == POWERED_FLIGHT && accZ < BURNOUT_ACC_THRESHOLD)
-        {
-            event = BURNOUT;
-        }
-        else if (current_state == UNPOWERED_FLIGHT && descent)
-        {
-            event = APOGEE;
-        }else if (current_state == POST_DROGUE && height<AGL_THRESHOLD)
-        {
-            event = AGL_REACHED;
-        }else if (current_state == POST_MAIN && descent)
-        {
-            event = APOGEE;
-        }
-
 
         // State Updates
         switch (current_state)
@@ -91,68 +70,110 @@ bool FSM::Callback()
         case PRELAUNCH:
             if (this->transceiver->getButton() == LAUNCH)
             {
+                this->drogue_chute_servo.writeMicroseconds(1000);
                 current_state = LAUNCH_READY;
                 this->transceiver->buttonNone();
-                Serial.println(current_state);
             }
-            else if (this->transceiver->getButton() == END)
+            else if (this->transceiver->getButton() == TEST)
+            {
+                this->drogue_chute_servo.writeMicroseconds(1000);
+                current_state = TEST_READY;
+                this->transceiver->buttonNone();
+            }
+            else if (this->transceiver->getButton() == END_BUTTON)
             {
                 current_state = END;
+                this->transceiver->buttonNone();
             }
             break;
 
         case LAUNCH_READY:
-            switch (event)
+            if (this->transceiver->getButton() == PRELAUNCH_BUTTON)
             {
-            case LIFTOFF:
-                /* Change the state */
-                Serial.println("INSIDE LIFTOFF");
-                Serial.println("LIFTOFF");
+                current_state = PRELAUNCH;
+                this->transceiver->buttonNone();
+            }
+            else if (this->transceiver->getButton() == TEST)
+            {
+                current_state = TEST_READY;
+                this->transceiver->buttonNone();
+            }
+            else if (this->transceiver->getButton() == END_BUTTON)
+            {
+                current_state = END;
+                this->transceiver->buttonNone();
+            }
+            else if (accZ > LAUNCH_ACC_THRESHOLD)
+            {
                 current_state = POWERED_FLIGHT;
-                break;
             }
             break;
 
         case POWERED_FLIGHT:
-            switch (event)
+            if (accZ < BURNOUT_ACC_THRESHOLD)
             {
-            case BURNOUT:
                 /* Change the state */
                 current_state = UNPOWERED_FLIGHT;
-                break;
             }
             break;
 
         case UNPOWERED_FLIGHT:
-            switch (event)
+            if (descent)
             {
-            case APOGEE:
-                /* Change the state */
                 current_state = POST_DROGUE;
-                break;
             }
             break;
 
         case POST_DROGUE:
-            switch (event)
+            if (height < AGL_THRESHOLD)
             {
-            case AGL_REACHED:
                 /* Change the state */
                 current_state = POST_MAIN;
-                break;
+            }
+            else if (this->transceiver->getButton() == END_BUTTON)
+            {
+                current_state = END;
+                this->transceiver->buttonNone();
             }
             break;
 
         case POST_MAIN:
-            switch (event)
+            if (!descent)
             {
-            case LAND:
                 current_state = END;
-                break;
+            }
+            else if (this->transceiver->getButton() == END_BUTTON)
+            {
+                current_state = END;
+                this->transceiver->buttonNone();
+            }
+            break;
+
+        case TEST_READY:
+            if (this->transceiver->getButton() == DROGUE_SHOOT)
+            {
+                this->drogue_chute_servo.writeMicroseconds(5000);
+                current_state = POST_DROGUE;
+                this->transceiver->buttonNone();
+            }
+            else if (this->transceiver->getButton() == MAIN_SHOOT)
+            {
+                current_state = POST_MAIN;
+                this->transceiver->buttonNone();
+            }
+            else if (this->transceiver->getButton() == END_BUTTON)
+            {
+                current_state = END;
+                this->transceiver->buttonNone();
             }
             break;
 
         case END:
+            if (this->transceiver->getButton() == PRELAUNCH_BUTTON)
+            {
+                current_state = PRELAUNCH;
+                this->transceiver->buttonNone();
+            }
             break;
         }
     }

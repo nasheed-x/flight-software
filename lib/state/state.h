@@ -10,6 +10,7 @@ enum State
     BALLISTIC_DESCENT,
     POST_DROGUE,
     POST_MAIN,
+    TEST_READY,
     END
 };
 

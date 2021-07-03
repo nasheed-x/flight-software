@@ -23,6 +23,9 @@ FSM *fsm;           // Packet handler class
 
 void setup()
 {
+    drogue_chute_servo.attach(DROGUE_CHUTE_SERVO_PIN);
+    drogue_chute_servo.writeMicroseconds(1000);
+
     // Initialize communication
     Wire.begin();
     Wire.setClock(400000); // Increase I2C clock speed to 400kHz
@@ -36,6 +39,7 @@ void setup()
         delay(1);
     }
 
+
     // Define all needed submodules
     buzzer = new Buzzer();
     pwm = new PWMControl();
@@ -46,7 +50,7 @@ void setup()
     transceiver = new Transceiver(RFM69_CS, RFM69_INT, 1000);
     packet = new Packet(transceiver, flash, imu, barometer, gps, 50);
     blinker = new Blink(pwm);
-    fsm = new FSM(imu, barometer, gps, transceiver, 50);
+    fsm = new FSM(imu, barometer, gps, transceiver, drogue_chute_servo, 50);
 
     // Run sensor check
     check_sensors(pwm, barometer, transceiver, imu, flash, gps)
@@ -66,4 +70,16 @@ void setup()
 void loop()
 {
     scheduler.execute();
+
+    // for (int i=2000; i<4000; i+=5){
+    //     drogue_chute_servo.writeMicroseconds(i);
+    //     delay(15);
+    // }
+
+    // for (int i=4000; i>1500; i-=5){
+    //     drogue_chute_servo.writeMicroseconds(i);
+    //     delay(15);
+    // }
+    // drogue_chute_servo.writeMicroseconds(4000);
+    
 }
