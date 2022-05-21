@@ -10,26 +10,29 @@ The Haloship flight software is built atop the [Arduino core provided by stm32du
 
 1. Make sure PlatformIO is installed as part of VSCode
 
+1. Follow the section regarding udev-rules on this [link](https://docs.platformio.org/en/latest/faq.html#platformio-udev-rules)
+
 1. Follow this [link](https://docs.platformio.org/en/latest/core/installation.html#piocore-install-shell-commands) to make sure pio is part of your PATH
-```
-export PATH=$PATH:$HOME/.platformio/penv/bin
-```
-1. Clone this [repository](https://github.com/haloship/haloship_variant)
+    ```
+    export PATH=$PATH:$HOME/.platformio/penv/bin
+    ```
+
+1. Clone this [repository](https://github.com/haloship/haloship_variant) to get files relevant to the board.
 
 1. Make sure the `ststm32` platform is installed in PlatformIO. [See here](https://docs.platformio.org/en/stable/platforms/ststm32.html)
 
 1. In `~/.platformio/platforms/ststm32/boards` copy over `haloship.json` found in the `haloship_variant` repository.
 
 1. In `~/.platformio/packages/framework-arduinoststm32/boards.txt` add: 
-```
-# Haloship Feather STM32F405 board
-GenF4.menu.pnum.HALOSHIP_F405=Halsohip Board F405
-GenF4.menu.pnum.HALOSHIP_F405.upload.maximum_size=1048576
-GenF4.menu.pnum.HALOSHIP_F405.upload.maximum_data_size=131072
-GenF4.menu.pnum.HALOSHIP_F405.build.board=HALOSHIP_F405
-GenF4.menu.pnum.FEATHER_F405.build.product_line=STM32F405xx
-GenF4.menu.pnum.HALOSHIP_F405.build.variant=HALOSHIP_F405
-```
+    ```
+    # Haloship Feather STM32F405 board
+    GenF4.menu.pnum.HALOSHIP_F405=Halsohip Board F405
+    GenF4.menu.pnum.HALOSHIP_F405.upload.maximum_size=1048576
+    GenF4.menu.pnum.HALOSHIP_F405.upload.maximum_data_size=131072
+    GenF4.menu.pnum.HALOSHIP_F405.build.board=HALOSHIP_F405
+    GenF4.menu.pnum.FEATHER_F405.build.product_line=STM32F405xx
+    GenF4.menu.pnum.HALOSHIP_F405.build.variant=HALOSHIP_F405
+    ```
 
 1. In `~/.platformio/packages/framework-arduinoststm32/variants/` create a directory named `HALOSHIP_F405`. Into this folder copy: `ldscript.ld`, `PeripheralPins.c`, `PinNamesVar.h`, `variant.cpp`, `variant.h`
 
