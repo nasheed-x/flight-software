@@ -21,6 +21,7 @@ private:
     long measurement_delay;
     long previous_time = 0;
     float acc_x, acc_y, acc_z;
+    float acc_offset_x, acc_offset_y, acc_offset_z;
 
 public:
     IMU(long measurement_delay);
@@ -31,6 +32,8 @@ public:
     float getAccelerationX();
     float getAccelerationY();
     float getAccelerationZ();
+
+    void calibrateAccelerometer();
 
     // Task virtual methods
     bool Callback();

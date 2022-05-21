@@ -21,17 +21,49 @@ bool IMU::measurementReady()
 
 float IMU::getAccelerationX()
 {
-    return acc_x;
+    return acc_x + this->acc_offset_x;
 }
 
 float IMU::getAccelerationY()
 {
-    return acc_y;
+    return acc_y + this->acc_offset_x;
 }
 
 float IMU::getAccelerationZ()
 {
-    return acc_z;
+    return acc_z + this->acc_offset_x;
+}
+
+void IMU::calibrateAccelerometer()
+{
+    Serial.println("Calibrating IMU...");
+    float accel[3] = {this->acc_x, this->acc_y, this->acc_z};
+    float offsets[3] = {0, 0, 0};
+    // Take 800 readings of accelerometer and calculate
+    for (int i = 1; i < 500; i++)
+    {
+        this->driver->getAccelerometer(&this->acc_x, &this->acc_y, &this->acc_z);
+        for (int j = 0; j < 3; j++)
+        {
+            // if value is greather than 0.5, its probably the dominant orientation
+            if (accel[j] > 0.5)
+            {
+                offsets[j] = ((1.0 - accel[j]) + offsets[j]) / i;
+            }
+
+            // else it is not the dominant orientation and should be set to 0
+            else
+            {
+                offsets[j] = ((0.0 - accel[j]) + offsets[j]) / i;
+            }
+        }
+    }
+
+    this->acc_offset_x = offsets[0];
+    this->acc_offset_y = offsets[1];
+    this->acc_offset_z = offsets[2];
+    Serial.println("Calibrated!");
+    Serial.println(this->acc_offset_z);
 }
 
 bool IMU::Callback()
@@ -48,6 +80,7 @@ bool IMU::Callback()
 bool IMU::OnEnable()
 {
     this->driver->init();
+    this->calibrateAccelerometer();
     return true;
 }
 
