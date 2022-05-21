@@ -1,92 +1,85 @@
-#include <Arduino.h>
-#include <SPI.h>
-#include <RH_RF69.h>
-#include "config.hpp"
+#include "config.h"
+#include "util.h"
 
-// Singleton instance of the radio driver
-RH_RF69 rf69(RFM69_CS, RFM69_INT);
+// SERVO USES STM32F4 TIMER 1 THAT OPERATES AT TWICE THE EXPECTED FREQUENCY
+// HENCE WRITE ALL MICROSECONDS IN DOUBLE
+// 2000 MICROSECONDS --> 1 MILLISECOND
+// 4000 MICROSECONDS --> 2 MILLISECOND
 
-int16_t packetnum = 0;  // packet counter, we increment per xmission
+// Instantiate submodules
+Buzzer *buzzer;           // Audio notification
+PWMControl *pwm;          // PWM control
+Barometer *barometer;     // Altitude + pressure
+Transceiver *transceiver; // RF Communication
+IMU *imu;                 // Orientation
+Flash *flash;             // Flash Memory
+GPS *gps;                 // GPS
+Servo main_chute_servo;   // Deployment
+Servo drogue_chute_servo; // Deployment
+Blink *blinker;           // Blink task with PWM control
+Packet *packet;           // Packet handler class
+FSM *fsm;           // Packet handler class
+// State *current_state;     // State machine
 
-void Blink(byte PIN, byte DELAY_MS, byte loops) {
-  for (byte i=0; i<loops; i++)  {
-    digitalWrite(PIN,HIGH);
-    delay(DELAY_MS);
-    digitalWrite(PIN,LOW);
-    delay(DELAY_MS);
-  }
-}
-
-void setup() 
+void setup()
 {
-  Serial.begin(115200);
-  //while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
+    drogue_chute_servo.attach(DROGUE_CHUTE_SERVO_PIN);
+    drogue_chute_servo.writeMicroseconds(1000);
 
-  pinMode(LED, OUTPUT);     
-  pinMode(RFM69_RST, OUTPUT);
-  digitalWrite(RFM69_RST, LOW);
+    // Initialize communication
+    Wire.begin();
+    Wire.setClock(400000); // Increase I2C clock speed to 400kHz
+    Serial.begin(115200);
 
-  Serial.println("Feather RFM69 RX Test!");
-  Serial.println();
+    State current_state = PRELAUNCH;
 
-  // manual reset
-  digitalWrite(RFM69_RST, HIGH);
-  delay(10);
-  digitalWrite(RFM69_RST, LOW);
-  delay(10);
-  
-  if (!rf69.init()) {
-    Serial.println("RFM69 radio init failed");
-    while (1);
-  }
-  Serial.println("RFM69 radio init OK!");
-  
-  // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
-  // No encryption
-  if (!rf69.setFrequency(RF69_FREQ)) {
-    Serial.println("setFrequency failed");
-  }
+    // Wait until serial console is open, remove if not tethered to computer
+    while (!Serial)
+    {
+        delay(1);
+    }
 
-  // If you are using a high power RF69 eg RFM69HW, you *must* set a Tx power with the
-  // ishighpowermodule flag set like this:
-  rf69.setTxPower(20, true);  // range from 14-20 for power, 2nd arg must be true for 69HCW
 
-  // The encryption key has to be the same as the one in the server
-  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-  rf69.setEncryptionKey(key);
-  
-  pinMode(LED, OUTPUT);
+    // Define all needed submodules
+    buzzer = new Buzzer();
+    pwm = new PWMControl();
+    barometer = new Barometer(LPS_CS, 50);
+    imu = new IMU(50);
+    gps = new GPS(200);
+    flash = new Flash(FLASH_CS, 50, buzzer);
+    transceiver = new Transceiver(RFM69_CS, RFM69_INT, 1000);
+    packet = new Packet(transceiver, flash, imu, barometer, gps, 50);
+    blinker = new Blink(pwm);
+    fsm = new FSM(imu, barometer, gps, transceiver, drogue_chute_servo, 50);
 
-  Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
+    // Run sensor check
+    check_sensors(pwm, barometer, transceiver, imu, flash, gps)
+        ? buzzer->signalSuccess()
+        : buzzer->signalFail();
+
+    // Enable chips
+    barometer->enable();
+    imu->enable();
+    gps->enable();
+    packet->enable();
+    // flash->enableDelayed(1000);
+    transceiver->enableDelayed(1000);
+    fsm->enable();
 }
 
+void loop()
+{
+    scheduler.execute();
 
-void loop() {
- if (rf69.available()) {
-    // Should be a message for us now   
-    uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-    uint8_t len = sizeof(buf);
-    if (rf69.recv(buf, &len)) {
-      if (!len) return;
-      buf[len] = 0;
-      Serial.print("Received [");
-      Serial.print(len);
-      Serial.print("]: ");
-      Serial.println((char*)buf);
-      Serial.print("RSSI: ");
-      Serial.println(rf69.lastRssi(), DEC);
+    // for (int i=2000; i<4000; i+=5){
+    //     drogue_chute_servo.writeMicroseconds(i);
+    //     delay(15);
+    // }
 
-      if (strstr((char *)buf, "Hello World")) {
-        // Send a reply!
-        uint8_t data[] = "And hello back to you";
-        rf69.send(data, sizeof(data));
-        rf69.waitPacketSent();
-        Serial.println("Sent a reply");
-        Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
-      }
-    } else {
-      Serial.println("Receive failed");
-    }
-  }
+    // for (int i=4000; i>1500; i-=5){
+    //     drogue_chute_servo.writeMicroseconds(i);
+    //     delay(15);
+    // }
+    // drogue_chute_servo.writeMicroseconds(4000);
+    
 }
